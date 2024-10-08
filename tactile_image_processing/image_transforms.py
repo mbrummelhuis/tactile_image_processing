@@ -247,19 +247,19 @@ if __name__ == '__main__':
     from tactile_image_processing.simple_sensors import RealSensor
 
     sensor_params = {
-        'source': 1,
+        'source': 4,
     }
     
     camera = RealSensor(sensor_params)
 
     image_processing_params = {
-        'gray': False,
-        'bbox': None,
+        'gray': True,
+        'bbox': (95, 40, 535, 480),
         'dims': None,
         'stdiz': False,
         'normlz': False,
         'thresh': [11, -30],
-        'circle_mask_radius': None,
+        'circle_mask_radius': 230,
     }
 
     camera_loop(camera, image_processing_params)

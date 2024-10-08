@@ -1,3 +1,6 @@
+"""
+Author: Martijn Brummelhuis
+"""
 import cv2
 
 def main(source):
