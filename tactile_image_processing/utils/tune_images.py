@@ -49,6 +49,13 @@ def update_image(thresh1, thresh2, cmr, x_min, x_max, y_min, y_max):
     # Display the updated image
     ax.imshow(reprocessed_image, cmap='gray', vmin=0, vmax=255)
     ax.set_title(f'Thresh: {thresh1, thresh2}, Mask radius: {cmr}, BBox: [{x_min},{x_max},{y_min},{y_max}]')
+    
+    # Calculate and display current resolution
+    current_resolution_x = x_max - x_min
+    current_resolution_y = y_max - y_min
+    ax.text(0.05, 0.95, f'Resolution: {current_resolution_x} x {current_resolution_y}',
+            transform=ax.transAxes, fontsize=10, color='black', backgroundcolor='white', va='top')
+ 
     plt.draw()
 
 # Create the sliders for thresholding and circle mask radius
@@ -77,7 +84,7 @@ ymax_slider = Slider(ax_ymax, 'Y Max', 0, image_height, valinit=image_height, va
 
 # Create the other sliders for thresholding and circle mask radius
 thresh1_slider = Slider(ax_thresh1, 'Threshold 1 blocksize', 3, 201, valinit=61, valstep=2)
-thresh2_slider = Slider(ax_thresh2, 'Threshold 2 constant', -21, 99, valinit=5)
+thresh2_slider = Slider(ax_thresh2, 'Threshold 2 constant', -201, 99, valinit=5)
 cmr_slider = Slider(ax_cmr, 'Circle Mask Radius', 10, 400, valinit=200, valstep=1)
 
 # Update the plot when any slider is changed
