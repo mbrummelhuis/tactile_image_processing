@@ -40,7 +40,7 @@ def setup_targets(
         ]
     )
 
-    # make geneated data predictable
+    # make generated data predictable
     np.random.seed(collect_params.get('seed', None))
 
     # save target data

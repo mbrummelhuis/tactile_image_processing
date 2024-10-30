@@ -7,7 +7,7 @@ from matplotlib.widgets import Slider
 from tactile_image_processing.image_transforms import process_image
 from tactile_image_processing.simple_sensors import RealSensor
 
-def setup_sensor():
+def setup_sensor(exp=-7):
     bbox_dict = {
         'mini': (320-160,    240-160+25, 320+160,    240+160+25),
         'midi': (320-220+10, 240-220-20, 320+220+10, 240+220-20),
@@ -18,7 +18,7 @@ def setup_sensor():
     sensor_image_params = {
         'type': sensor_type,
         'source': 4,
-        'exposure': -7,
+        'exposure': exp,
         'gray': True,
         'bbox': bbox_dict[sensor_type]
     }
@@ -33,7 +33,14 @@ sensor = setup_sensor()
 image_rgb = sensor.read()
 
 # Define update function for the bounding box
-def update_image(thresh1, thresh2, cmr, x_min, x_max, y_min, y_max):
+def update_image(thresh1, thresh2, cmr, x_min, x_max, y_min, y_max, set_exposure):
+    
+    # Setup sensor
+    sensor.set_exposure(new_exposure=set_exposure)
+
+    # Take a new image (in case of exposure change)
+    image_rgb = sensor.read()
+    
     # Ensure the sliders do not cross
     x_min, x_max = sorted([x_min, x_max])
     y_min, y_max = sorted([y_min, y_max])
@@ -74,6 +81,8 @@ ax_ymax = plt.axes([0.20, 0.5, 0.02, 0.3], facecolor='lightgoldenrodyellow')  # 
 ax_thresh1 = plt.axes([0.25, 0.25, 0.65, 0.03], facecolor='lightgoldenrodyellow')
 ax_thresh2 = plt.axes([0.25, 0.20, 0.65, 0.03], facecolor='lightgoldenrodyellow')
 ax_cmr = plt.axes([0.25, 0.15, 0.65, 0.03], facecolor='lightgoldenrodyellow')
+ax_exposure = plt.axes([0.25, 0.10, 0.65, 0.03], facecolor='lightgoldenrodyellow')
+
 
 # Define the min/max for the bounding box sliders (depends on image dimensions)
 image_height, image_width = image_rgb.shape[:2]
@@ -86,6 +95,7 @@ ymax_slider = Slider(ax_ymax, 'Y Max', 0, image_height, valinit=image_height, va
 thresh1_slider = Slider(ax_thresh1, 'Threshold 1 blocksize', 3, 201, valinit=61, valstep=2)
 thresh2_slider = Slider(ax_thresh2, 'Threshold 2 constant', -201, 99, valinit=5)
 cmr_slider = Slider(ax_cmr, 'Circle Mask Radius', 10, 400, valinit=200, valstep=1)
+exposure_slider = Slider(ax_exposure, 'Exposure', -100, 1000, valinit=-7, valstep=.1)
 
 # Update the plot when any slider is changed
 def on_slider_change(val):
@@ -96,7 +106,7 @@ def on_slider_change(val):
     y_max = max(ymin_slider.val, ymax_slider.val)
 
     update_image(int(thresh1_slider.val), thresh2_slider.val, cmr_slider.val,
-                 x_min, x_max, y_min, y_max)
+                 x_min, x_max, y_min, y_max, set_exposure=exposure_slider.val)
 
 # Link the slider updates
 thresh1_slider.on_changed(on_slider_change)
@@ -106,6 +116,7 @@ xmin_slider.on_changed(on_slider_change)
 xmax_slider.on_changed(on_slider_change)
 ymin_slider.on_changed(on_slider_change)
 ymax_slider.on_changed(on_slider_change)
+exposure_slider.on_changed(on_slider_change)
 
 # Show the plot window
 plt.show(block=True)

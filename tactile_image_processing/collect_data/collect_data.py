@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import time
 
 from tactile_image_processing.collect_data.setup_embodiment import setup_embodiment
 from tactile_image_processing.collect_data.setup_targets import setup_targets
@@ -21,26 +22,32 @@ def collect_data(
     object_pose_label_names = collect_params.get('object_pose_label_names', OBJECT_POSE_LABEL_NAMES)
 
     # start 50mm above workframe origin with zero joint 6
+    print("Moving to 50 mm above workframe origin")
     robot.move_linear((0, 0, -50, 0, 0, 0))
     robot.move_joints([*robot.joint_angles[:-1], 0])
 
     # collect reference image
+    print(f"Collecting reference image in {image_dir}/image_0.png")
     image_outfile = os.path.join(image_dir, 'image_0.png')
     sensor.process(image_outfile)
+    time.sleep(5)
 
     # clear object by 10mm
+    print("Moving to 10 mm above workframe origin")
     clearance = (0, 0, 10, 0, 0, 0)
     robot.move_linear(np.zeros(6) - clearance)
     joint_angles = robot.joint_angles
     saved_obj_label = ''
 
     # ==== data collection loop ====
+    print("Starting data collection sequence")
     for i, row in targets_df.iterrows():
         image_name = row.loc["sensor_image"]
         obj_label = row.loc["object_label"]
         pose = row.loc[pose_label_names].values.astype(float)
         shear = row.loc[shear_label_names].values.astype(float)
         obj_pose = row.loc[object_pose_label_names].values.astype(float)
+        print("Object pose: ", obj_pose)
 
         # report
         with np.printoptions(precision=1, suppress=True):
@@ -76,8 +83,8 @@ def collect_data(
         if not collect_params.get('sort', False):
             robot.move_joints(joint_angles)
 
-    # finish 50mm above workframe origin then zero last joint
-    robot.move_linear((0, 0, -50, 0, 0, 0))
+    # finish 100mm above workframe origin then zero last joint
+    robot.move_linear((0, 0, -100, 0, 0, 0))
     robot.move_joints((*robot.joint_angles[:-1], 0))
     robot.close()
 
