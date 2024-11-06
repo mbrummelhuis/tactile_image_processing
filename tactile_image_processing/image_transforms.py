@@ -19,8 +19,9 @@ def process_image(
     **kwargs
 ):
     ''' Process raw image (e.g., before applying to neural network).
+    During data collection this function processes the raw image before saving.
     '''
-    if gray and len(image.shape) == 3:
+    if gray and len(image.shape) == 3 and image.shape[2] == 3:
         # Convert to gray scale
         image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
         # Add channel axis
